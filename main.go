@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -8,7 +9,11 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-pg/pg"
+	"github.com/gorilla/sessions"
 	slim "github.com/mattn/go-slim"
+	"github.com/odiak/drawer/config"
+	"github.com/odiak/drawer/sessionstore"
 )
 
 func main() {
@@ -20,12 +25,40 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
 
+	db := pg.Connect(config.PgOptions)
+	db.OnQueryProcessed(func(event *pg.QueryProcessedEvent) {
+		query, err := event.FormattedQuery()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(fmt.Sprintf("SQL Query: %s, %s", time.Since(event.StartTime), query))
+	})
+	sessionStore := sessionstore.NewStore(db, &sessions.Options{
+		MaxAge: 2592000, // 30 days
+	}, []byte("foobar1234"))
+
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		tmpl, err := slim.ParseFile("views/index.slim")
 		if err != nil {
 			panic(err)
 		}
-		err = tmpl.Execute(w, slim.Values{})
+		s, err := sessionStore.Get(r, "val")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(s.ID)
+		fmt.Println(s.IsNew)
+		if s.Values["t"] == nil {
+			s.Values["t"] = time.Now().Unix()
+		}
+		t := s.Values["t"]
+		err = s.Save(r, w)
+		if err != nil {
+			panic(err)
+		}
+		err = tmpl.Execute(w, slim.Values{
+			"t": t,
+		})
 		if err != nil {
 			panic(err)
 		}
