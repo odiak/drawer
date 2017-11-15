@@ -9,6 +9,17 @@
     node.addEventListener(name, func);
   }
 
+  function getOffset(node) {
+    let top = 0;
+    let left = 0;
+    while (node) {
+      top += node.offsetTop;
+      left += node.offsetLeft;
+      node = node.offsetParent;
+    }
+    return {top, left};
+  }
+
   function plot(imageData, x, y, r, g, b, a) {
     if (x < 0 || y < 0 || x >= imageData.width || y >= imageData.height) {
       return;
@@ -22,6 +33,11 @@
 
   function drawLine(ctx, x0, y0, x1, y1, thickness) {
     let imageData = ctx.getImageData(0, 0, width, height);
+
+    x0 |= 0;
+    y0 |= 0;
+    x1 |= 0;
+    y1 |= 0;
 
     plot(imageData, x0, y0, 0, 0, 0, 255);
     let steep = Math.abs(y1 - y0) > Math.abs(x1 - x0);
@@ -108,12 +124,36 @@
       });
       on(canvas, 'mousemove', (event) => {
         if (prevPoint) {
-          drawLine(ctx, prevPoint.x, prevPoint.y, event.offsetX, event.offsetY, 2);
+          drawLine(ctx, prevPoint.x, prevPoint.y, event.offsetX, event.offsetY, 3);
           prevPoint = {x: event.offsetX, y: event.offsetY};
         }
       });
       on(document.body, 'mouseup', (event) => {
         prevPoint = null;
+      });
+
+      on(canvas, 'touchstart', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        let {top, left} = getOffset(canvas);
+        prevPoint = {x: event.touches[0].pageX - left, y: event.touches[0].pageY - top};
+        console.log(event, prevPoint);
+      });
+      on(canvas, 'touchmove', (event) => {
+        if (prevPoint) {
+          event.preventDefault();
+          event.stopPropagation();
+          let {left, top} = getOffset(canvas);
+          let x = event.touches[0].pageX - left;
+          let y = event.touches[0].pageY - top;
+          drawLine(ctx, prevPoint.x, prevPoint.y, x, y, 3);
+          prevPoint = {x, y};
+          console.log(prevPoint);
+        }
+      });
+      on(document.body, 'touchend', (event) => {
+        prevPoint = null;
+        console.log('end');
       });
 
       const clearButton = d.getElementById('clear');
