@@ -70,8 +70,10 @@ func main() {
 		}
 
 		picture := &store.Picture{
-			ID:      id,
-			OwnerID: currentUser.ID,
+			ID: id,
+		}
+		if currentUser != nil {
+			picture.OwnerID = currentUser.ID
 		}
 		if err := db.Insert(picture); err != nil {
 			panic(err)
@@ -111,7 +113,7 @@ func main() {
 			panic(err)
 		}
 		isNew := false
-		if picture.OwnerID != currentUser.ID {
+		if (currentUser == nil && picture.OwnerID != 0) || (currentUser != nil && picture.OwnerID != currentUser.ID) {
 			id = util.RandomStr(16)
 			isNew = true
 		}
