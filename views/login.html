@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Login</title>
+  </head>
+  <body>
+    <h1>
+      Login or register
+    </h1>
+    <form action="/login" method="post">
+      <input type="hidden" name="csrfToken" value="{{.csrfToken}}">
+      <p>
+        <label>email</label>
+        <input type="email" name="email" required>
+      </p>
+      <p>
+        <button type="submit">login or register</button>
+      </p>
+    </form>
+  </body>
+</html>

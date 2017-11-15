@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Register</title>
+  </head>
+  <body>
+    <h1>Register</h1>
+    <form action="/register" method="post">
+      <input type="hidden" name="csrfToken" value="{{.csrfToken}}">
+      <p>
+        <label>name</label>
+        <input type="text" name="name" required>
+      </p>
+      <p>
+        <label>screen name (must be unique)</label>
+        <input type="text" name="screenName" required>
+      </p>
+      <p>
+        <button type="submit">Register</button>
+      </p>
+    </form>
+  </body>
+</html>
