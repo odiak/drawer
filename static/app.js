@@ -31,9 +31,7 @@
     imageData.data[i + 3] = a;
   }
 
-  function drawLine(ctx, x0, y0, x1, y1, thickness) {
-    let imageData = ctx.getImageData(0, 0, width, height);
-
+  function drawLine(imageData, x0, y0, x1, y1, thickness) {
     x0 |= 0;
     y0 |= 0;
     x1 |= 0;
@@ -97,14 +95,13 @@
         }
       }
     }
-
-    ctx.putImageData(imageData, 0, 0);
   }
 
   on(window, 'load',() => {
     const canvas = d.getElementById('canvas');
     if (canvas) {
       const ctx = canvas.getContext('2d');
+      let imageData = new ImageData(width, height);
 
       canvas.width = width;
       canvas.height = height;
@@ -113,9 +110,21 @@
         let img = new Image();
         img.onload = () => {
           ctx.drawImage(img, 0, 0);
+          imageData = ctx.getImageData(0, 0, width, height);
         };
         img.src = canvas.dataset.imageUrl;
       }
+
+      let waitingNextFrame = false;
+      let update = () => {
+        if (!waitingNextFrame) {
+          waitingNextFrame = true;
+          requestAnimationFrame(() => {
+            waitingNextFrame = false;
+            ctx.putImageData(imageData, 0, 0);
+          });
+        }
+      };
 
       let prevPoint = null;
 
@@ -124,7 +133,8 @@
       });
       on(canvas, 'mousemove', (event) => {
         if (prevPoint) {
-          drawLine(ctx, prevPoint.x, prevPoint.y, event.offsetX, event.offsetY, 3);
+          drawLine(imageData, prevPoint.x, prevPoint.y, event.offsetX, event.offsetY, 3);
+          update();
           prevPoint = {x: event.offsetX, y: event.offsetY};
         }
       });
@@ -146,7 +156,8 @@
           let {left, top} = getOffset(canvas);
           let x = event.touches[0].pageX - left;
           let y = event.touches[0].pageY - top;
-          drawLine(ctx, prevPoint.x, prevPoint.y, x, y, 3);
+          drawLine(imageData, prevPoint.x, prevPoint.y, x, y, 3);
+          update();
           prevPoint = {x, y};
           console.log(prevPoint);
         }
@@ -159,6 +170,7 @@
       const clearButton = d.getElementById('clear');
       on(clearButton, 'click', () => {
         ctx.clearRect(0, 0, width, height);
+        imageData = ctx.getImageData(0, 0, width, height);
       });
 
       const imageInput = d.querySelector('input[name=image]');
