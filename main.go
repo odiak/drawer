@@ -238,6 +238,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+		setCurrentUser(ss, r, w, user)
 		http.Redirect(w, r, "/", 302)
 	})
 
