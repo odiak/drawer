@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"gopkg.in/gomail.v2"
 	"image/png"
 	"io"
 	"net/http"
@@ -148,6 +149,30 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+
+		m := gomail.NewMessage()
+		m.SetHeader("From", "drawer-noreply@odiak.net")
+		m.SetHeader("To", loginReq.Email)
+		m.SetHeader("Subject", "Email confirmation from draw.odiak.net")
+		m.SetBody("text/plain", fmt.Sprintf(
+			"Please access following URL to comfirm your email address.\n"+
+				"%s/activate_login_request?token=%s\n\n",
+			config.Origin,
+			loginReq.Token,
+		))
+
+		d := gomail.NewDialer(
+			config.SmtpHost,
+			config.SmtpPort,
+			config.SmtpUser,
+			config.SmtpPassword,
+		)
+		d.TLSConfig = config.SmtpTlsConfig
+
+		if err := d.DialAndSend(m); err != nil {
+			panic(err)
+		}
+
 		http.Redirect(w, r, "/login_request_sent", 302)
 	})
 
