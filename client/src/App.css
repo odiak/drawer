@@ -1,0 +1,29 @@
+.App {
+  margin: 14px;
+}
+
+.App-logo a:link,
+.App-logo a:hover,
+.App-logo a:visited {
+  color: inherit;
+}
+
+.App-nav {
+  list-style: none;
+  padding: 0;
+}
+
+.App-nav li {
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.App-nav li:first-child {
+  display: inline-block;
+  margin-left: 0;
+}
+
+canvas {
+  display: block;
+  border: 1px solid #aaa;
+}
