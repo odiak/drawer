@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"gopkg.in/gomail.v2"
 	"image/png"
@@ -10,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -53,15 +55,15 @@ func main() {
 	r.Use(bindValue("sessionStore", sessionStore))
 	r.Use(withCsrfProtection)
 
-	r.Get("/", withCurrentUser(func(w http.ResponseWriter, r *http.Request) {
+	r.With(withCurrentUser).Get("/", func(w http.ResponseWriter, r *http.Request) {
 		currentUser := r.Context().Value("currentUser").(*store.User)
 		renderTemplate("index", w, map[string]interface{}{
 			"currentUser": currentUser,
 			"csrfToken":   r.Context().Value("csrfToken").(string),
 		})
-	}))
+	})
 
-	r.Post("/", withCurrentUser(func(w http.ResponseWriter, r *http.Request) {
+	r.With(withCurrentUser).Post("/", func(w http.ResponseWriter, r *http.Request) {
 		currentUser := r.Context().Value("currentUser").(*store.User)
 		db := r.Context().Value("db").(*pg.DB)
 
@@ -80,9 +82,9 @@ func main() {
 			panic(err)
 		}
 		http.Redirect(w, r, fmt.Sprintf("/p/%s", id), 302)
-	}))
+	})
 
-	r.Get("/p/{pictureID}", withCurrentUser(func(w http.ResponseWriter, r *http.Request) {
+	r.With(withCurrentUser).Get("/p/{pictureID}", func(w http.ResponseWriter, r *http.Request) {
 		currentUser := getCurrentUser(r)
 		db := getDB(r)
 		id := chi.URLParam(r, "pictureID")
@@ -99,9 +101,9 @@ func main() {
 			"picture":     picture,
 			"csrfToken":   r.Context().Value("csrfToken").(string),
 		})
-	}))
+	})
 
-	r.Post("/p/{pictureID}/save", withCurrentUser(func(w http.ResponseWriter, r *http.Request) {
+	r.With(withCurrentUser).Post("/p/{pictureID}/save", func(w http.ResponseWriter, r *http.Request) {
 		currentUser := getCurrentUser(r)
 		db := getDB(r)
 		id := chi.URLParam(r, "pictureID")
@@ -130,7 +132,7 @@ func main() {
 			panic(err)
 		}
 		http.Redirect(w, r, fmt.Sprintf("/p/%s", id), 302)
-	}))
+	})
 
 	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
 		renderTemplate("login", w, map[string]interface{}{
@@ -241,6 +243,8 @@ func main() {
 		setCurrentUser(ss, r, w, user)
 		http.Redirect(w, r, "/", 302)
 	})
+
+	r.Mount("/api", apiRouter())
 
 	workDir, _ := os.Getwd()
 	staticDir := filepath.Join(workDir, "static")
@@ -374,14 +378,14 @@ func bindValue(name string, value interface{}) func(http.Handler) http.Handler {
 	}
 }
 
-func withCurrentUser(f http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func withCurrentUser(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		db := ctx.Value("db").(orm.DB)
 		ss := ctx.Value("sessionStore").(*sessionstore.SessionStore)
-		f(w, r.WithContext(context.WithValue(ctx, "currentUser",
+		h.ServeHTTP(w, r.WithContext(context.WithValue(ctx, "currentUser",
 			getCurrentUserFromDB(ss, r, db))))
-	}
+	})
 }
 
 func writerImage(id, image string) error {
@@ -406,4 +410,100 @@ func writerImage(id, image string) error {
 		return err
 	}
 	return nil
+}
+
+func pictureToMap(picture *store.Picture, baseURL string) map[string]interface{} {
+	return map[string]interface{}{
+		"id":        picture.ID,
+		"imageUrl":  fmt.Sprintf("%s/static/images/%s.png", baseURL, picture.ID),
+		"createdAt": picture.CreatedAt,
+		"updatedAt": picture.UpdatedAt,
+	}
+}
+
+func renderJson(w http.ResponseWriter, v interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		panic(err)
+	}
+}
+
+func apiRouter() chi.Router {
+	r := chi.NewRouter()
+
+	r.Get("/pictures", func(w http.ResponseWriter, r *http.Request) {
+		db := getDB(r)
+
+		page, err := strconv.Atoi(r.FormValue("page"))
+		if err != nil || page < 1 {
+			page = 1
+		}
+		count, err := strconv.Atoi(r.FormValue("count"))
+		if err != nil || count < 1 {
+			count = 30
+		}
+		if count > 100 {
+			count = 100
+		}
+
+		var pictures []store.Picture
+		err = db.Model(&pictures).Order("created_at DESC").Limit(count + 1).Offset((page - 1) * count).Select()
+		if err != nil && err != pg.ErrNoRows {
+			panic(err)
+		}
+
+		hasNext := len(pictures) > count
+		if hasNext {
+			pictures = pictures[:len(pictures)-1]
+		}
+
+		pictureMaps := make([]map[string]interface{}, len(pictures))
+		for i, picture := range pictures {
+			pictureMaps[i] = pictureToMap(&picture, config.Origin)
+		}
+
+		renderJson(w, map[string]interface{}{
+			"pictures": pictureMaps,
+			"hasNext":  hasNext,
+		})
+	})
+
+	r.With(withCurrentUser).Post("/pictures", func(w http.ResponseWriter, r *http.Request) {
+		currentUser := getCurrentUser(r)
+		db := getDB(r)
+
+		id := util.RandomStr(16)
+		if err := writerImage(id, r.PostFormValue("image")); err != nil {
+			panic(err)
+		}
+
+		picture := &store.Picture{
+			ID: id,
+		}
+		if currentUser != nil {
+			picture.OwnerID = currentUser.ID
+		}
+		if err := db.Insert(picture); err != nil {
+			panic(err)
+		}
+
+		renderJson(w, pictureToMap(picture, config.Origin))
+	})
+
+	r.Get("/pictures/{pictureID}", func(w http.ResponseWriter, r *http.Request) {
+		db := getDB(r)
+
+		id := chi.URLParam(r, "pictureID")
+		picture, err := store.FindPictureByID(db, id)
+		if err != nil {
+			if err == pg.ErrNoRows {
+				w.WriteHeader(404)
+				return
+			}
+			panic(err)
+		}
+
+		renderJson(w, pictureToMap(picture, config.Origin))
+	})
+	return r
 }
