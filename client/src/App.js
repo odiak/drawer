@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import Link from './components/Link';
 
 const App = (props) => (
   <div className="App"
@@ -8,8 +9,8 @@ const App = (props) => (
     <h1 className="App-logo">Drawer</h1>
 
     <ul className="App-nav">
-      <li>Home</li>
-      <li>Login</li>
+      <li><Link to="/">Home</Link></li>
+      <li><Link to="/login">Login</Link></li>
     </ul>
 
     <Drawer {...props} />
