@@ -1,37 +1,29 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import DrawerActions from '../data/DrawerActions';
 
 function isModifiedEvent(event) {
   return !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
 }
 
-export default class Link extends React.Component {
-  static contextTypes = {
-    history: PropTypes.object,
-  };
+const Link = ({pushHistory, to, children, onClick, ...props}) => {
 
-  handleClick = (event) => {
-    if (this.props.onClick) {
-      this.props.onClick(event);
+  const handleClick = (event) => {
+    if (onClick) {
+      onClick(event);
     }
-
-    const history = this.context.history;
-    const {to} = this.props;
 
     if (
       !event.defaultPrevented &&
       event.button === 0 &&
-      !this.props.target &&
+      !props.target &&
       !isModifiedEvent(event)
     ) {
       event.preventDefault();
-      history.push(to);
+      DrawerActions.pushHistory(to);
     }
   };
 
-  render() {
-    const {to, children, ...props} = this.props;
+  return <a {...props} onClick={handleClick} href={to}>{children}</a>;
+};
 
-    return <a {...props} onClick={this.handleClick} href={to}>{children}</a>;
-  }
-}
+export default Link;

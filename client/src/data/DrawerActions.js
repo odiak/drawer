@@ -1,7 +1,16 @@
 import DrawerActionTypes from './DrawerActionTypes';
 import DrawerDispatcher from './DrawerDispatcher';
+import history from '../history';
 
 const Actions = {
+  pushHistory(path) {
+    history.push(path);
+    DrawerDispatcher.dispatch({
+      type: DrawerActionTypes.PUSH_HISTORY,
+      path,
+    });
+  },
+
   handleOnMouseDown(x, y) {
     DrawerDispatcher.dispatch({
       type: DrawerActionTypes.HANDLE_ON_MOUSE_DOWN,

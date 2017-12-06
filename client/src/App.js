@@ -13,6 +13,8 @@ const App = (props) => (
       <li><Link to="/login">Login</Link></li>
     </ul>
 
+    <p>{props.route.get('name')}</p>
+
     <Drawer {...props} />
   </div>
 );
