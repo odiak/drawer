@@ -1,0 +1,14 @@
+#!/bin/bash
+
+export APP_ENV="development"
+export APP_DB_ADDR="127.0.0.1:5432"
+export APP_DB_USER="user"
+export APP_DB_PASSWORD="password"
+export APP_DB_NAME="drawer"
+export APP_SMTP_HOST="example.com"
+export APP_SMTP_PORT="587"
+export APP_SMTP_USER="user"
+export APP_SMTP_PASSWORD="password"
+export APP_SMTP_TLS_INSECURE_SKIP_VERIFY="true"
+
+"$@"
