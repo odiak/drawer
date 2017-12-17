@@ -4,7 +4,9 @@ import history from '../history';
 
 const Actions = {
   pushHistory(path) {
-    history.push(path);
+    if (path !== history.location.pathname) {
+      history.push(path);
+    }
     DrawerDispatcher.dispatch({
       type: DrawerActionTypes.PUSH_HISTORY,
       path,
