@@ -1,11 +1,8 @@
 import App from '../App';
-import React, {Component} from 'react';
 import {Container} from 'flux/utils';
-import PropTypes from 'prop-types';
 import DrawerActions from '../data/DrawerActions';
 import PictureStore from '../data/PictureStore';
 import RouteStore from '../data/RouteStore';
-import history from '../history';
 
 export default Container.createFunctional(
   App,
