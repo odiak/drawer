@@ -1,6 +1,8 @@
 import DrawerActionTypes from './DrawerActionTypes';
 import DrawerDispatcher from './DrawerDispatcher';
 import history from '../history';
+import {imageDataToBase64StringOfPng, getCookie} from '../utils';
+import request from 'superagent';
 
 const Actions = {
   pushHistory(path) {
@@ -38,6 +40,20 @@ const Actions = {
   clearCanvas() {
     DrawerDispatcher.dispatch({
       type: DrawerActionTypes.CLEAR_CANVAS,
+    });
+  },
+
+  savePicture(imageData) {
+    imageDataToBase64StringOfPng(imageData).then((encodedImage) => {
+      console.log(encodedImage);
+      request
+        .post('/api/pictures')
+        .type('form')
+        .set('X-CSRF-TOKEN', getCookie('CSRF-TOKEN'))
+        .send({image: encodedImage})
+        .then((res) => {
+          console.log(res);
+        });
     });
   },
 };

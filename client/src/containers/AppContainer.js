@@ -19,5 +19,6 @@ export default Container.createFunctional(
     onMouseMove: DrawerActions.handleOnMouseMove,
     onMouseUp: DrawerActions.handleOnMouseUp,
     clearCanvas: DrawerActions.clearCanvas,
+    savePicture: DrawerActions.savePicture,
   })
 );

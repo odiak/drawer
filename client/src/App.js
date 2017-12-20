@@ -18,6 +18,7 @@ const App = (props) => (
 
     <div>
       <Canvas {...props} />
+      <button onClick={() => { props.savePicture(props.picture.get('imageData')); }}>save</button>
       <button onClick={() => { props.clearCanvas(); }}>clear</button>
     </div>
   </div>
