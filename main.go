@@ -42,6 +42,7 @@ func main() {
 	})
 	sessionStore := sessionstore.NewStore(db, &sessions.Options{
 		MaxAge: 2592000, // 30 days
+		Path:   "/",
 	}, []byte("foobar1234"))
 
 	r := chi.NewRouter()
@@ -54,6 +55,21 @@ func main() {
 	r.Use(bindValue("db", db))
 	r.Use(bindValue("sessionStore", sessionStore))
 	r.Use(withCsrfProtection)
+	r.Use(func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if cookie, _ := r.Cookie("CSRF-TOKEN"); cookie == nil || cookie.Value == "" {
+				ss := r.Context().Value("sessionStore").(*sessionstore.SessionStore)
+				token := getCsrfToken(ss, r, w)
+				http.SetCookie(w, &http.Cookie{
+					Name:   "CSRF-TOKEN",
+					Value:  token,
+					MaxAge: 60 * 60 * 24 * 30,
+					Path:   "/",
+				})
+			}
+			h.ServeHTTP(w, r)
+		})
+	})
 
 	r.With(withCurrentUser).Get("/", func(w http.ResponseWriter, r *http.Request) {
 		currentUser := r.Context().Value("currentUser").(*store.User)
@@ -296,12 +312,18 @@ func getCsrfToken(ss *sessionstore.SessionStore, r *http.Request, w http.Respons
 	return token
 }
 
+func isSafeRequest(r *http.Request) bool {
+	return r.Method == "GET" || r.Method == "HEAD" || r.Method == "OPTION" || r.Method == "TRACE"
+}
+
 func withCsrfProtection(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		ss := ctx.Value("sessionStore").(*sessionstore.SessionStore)
 		token := getCsrfToken(ss, r, w)
-		if !(r.Method == "GET" || r.Method == "HEAD" || r.Method == "OPTION" || r.Method == "TRACE") && r.PostFormValue("csrfToken") != token {
+		if !isSafeRequest(r) && r.PostFormValue("csrfToken") != token && r.Header.Get("X-CSRF-TOKEN") != token {
+			fmt.Println(token)
+			w.WriteHeader(401)
 			w.Write([]byte("error"))
 			return
 		}
