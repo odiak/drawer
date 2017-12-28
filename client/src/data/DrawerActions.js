@@ -45,7 +45,6 @@ const Actions = {
 
   savePicture(imageData) {
     imageDataToBase64StringOfPng(imageData).then((encodedImage) => {
-      console.log(encodedImage);
       request
         .post('/api/pictures')
         .type('form')

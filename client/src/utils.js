@@ -32,6 +32,6 @@ export function imageDataToBase64StringOfPng(imageData) {
 }
 
 export function getCookie(name) {
-  const escapedName = encodeURIComponent(name).replace(/[\-\.\+\*]/g, '\\$&');
+  const escapedName = encodeURIComponent(name).replace(/[-.+*]/g, '\\$&');
   return document.cookie.replace(new RegExp('(?:(?:^|.*;\\s*)' + escapedName + '\\s*\\=\\s*([^;]*).*$)|^.*$'), '$1');
 }
