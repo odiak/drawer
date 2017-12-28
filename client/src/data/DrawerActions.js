@@ -1,14 +1,10 @@
-import DrawerActionTypes from './DrawerActionTypes';
-import DrawerDispatcher from './DrawerDispatcher';
-import history from '../history';
+import {DrawerActionTypes} from './DrawerActionTypes';
+import {DrawerDispatcher} from './DrawerDispatcher';
 import {imageDataToBase64StringOfPng, getCookie} from '../utils';
 import request from 'superagent';
 
-const Actions = {
+export const DrawerActions = {
   pushHistory(path) {
-    if (path !== history.location.pathname) {
-      history.push(path);
-    }
     DrawerDispatcher.dispatch({
       type: DrawerActionTypes.PUSH_HISTORY,
       path,
@@ -56,5 +52,3 @@ const Actions = {
     });
   },
 };
-
-export default Actions;

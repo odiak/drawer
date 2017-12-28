@@ -1,9 +1,7 @@
-const ActionTypes = {
+export const DrawerActionTypes = {
   PUSH_HISTORY: 'PUSH_HISTORY',
   HANDLE_ON_MOUSE_DOWN: 'HANDLE_ON_MOUSE_DOWN',
   HANDLE_ON_MOUSE_MOVE: 'HANDLE_ON_MOUSE_MOVE',
   HANDLE_ON_MOUSE_UP: 'HANDLE_ON_MOUSE_UP',
   CLEAR_CANVAS: 'CLEAR_CANVAS',
 };
-
-export default ActionTypes;

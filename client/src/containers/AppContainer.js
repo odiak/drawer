@@ -1,24 +1,23 @@
-import App from '../App';
+import {App} from '../App';
 import {Container} from 'flux/utils';
-import DrawerActions from '../data/DrawerActions';
-import PictureStore from '../data/PictureStore';
-import RouteStore from '../data/RouteStore';
+import {DrawerActions} from '../data/DrawerActions';
+import {PictureStore} from '../data/PictureStore';
+import {RouteStore} from '../data/RouteStore';
+import {DrawerDispatcher} from '../data/DrawerDispatcher';
 
-export default Container.createFunctional(
+const pictureStore = new PictureStore(DrawerDispatcher);
+const routeStore = new RouteStore(DrawerDispatcher);
+
+export const AppContainer = Container.createFunctional(
   App,
   () => ([
-    PictureStore,
-    RouteStore,
+    pictureStore,
+    routeStore,
   ]),
   () => ({
-    picture: PictureStore.getState(),
-    route: RouteStore.getState(),
+    picture: pictureStore.getState(),
+    route: routeStore.getState(),
 
-    pushHistory: DrawerActions.pushHistory,
-    onMouseDown: DrawerActions.handleOnMouseDown,
-    onMouseMove: DrawerActions.handleOnMouseMove,
-    onMouseUp: DrawerActions.handleOnMouseUp,
-    clearCanvas: DrawerActions.clearCanvas,
-    savePicture: DrawerActions.savePicture,
+    ...DrawerActions,
   })
 );

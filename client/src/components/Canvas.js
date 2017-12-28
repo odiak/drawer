@@ -1,7 +1,7 @@
 import React from 'react';
 import {getOffset} from '../utils';
 
-const Canvas = (props) => {
+export const Canvas = (props) => {
   let imageData = props.picture.get('imageData');
 
   return (
@@ -29,13 +29,11 @@ const Canvas = (props) => {
         };
       }}
       onMouseDown={(event) => {
-        props.onMouseDown(event.nativeEvent.offsetX, event.nativeEvent.offsetY);
+        props.handleOnMouseDown(event.nativeEvent.offsetX, event.nativeEvent.offsetY);
       }}
       onMouseMove={(e) => {
-        props.onMouseMove(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+        props.handleOnMouseMove(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
       }}
       ></canvas>
   );
 };
-
-export default Canvas;

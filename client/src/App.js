@@ -1,12 +1,12 @@
 import React from 'react';
 import './App.css';
-import Link from './components/Link';
-import Canvas from './components/Canvas';
+import {Link} from './components/Link';
+import {Canvas} from './components/Canvas';
 
-const App = (props) => (
+export const App = (props) => (
   <div className="App"
-      onMouseUp={() => { props.onMouseUp(); }}
-      onTouchEnd={() => { props.onMouseUp(); }}>
+      onMouseUp={() => { props.handleOnMouseUp(); }}
+      onTouchEnd={() => { props.handleOnMouseUp(); }}>
     <h1 className="App-logo">Drawer</h1>
 
     <ul className="App-nav">
@@ -23,5 +23,3 @@ const App = (props) => (
     </div>
   </div>
 );
-
-export default App;

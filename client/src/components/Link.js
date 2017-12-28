@@ -1,11 +1,11 @@
 import React from 'react';
-import DrawerActions from '../data/DrawerActions';
+import {history} from '../history';
 
 function isModifiedEvent(event) {
   return !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
 }
 
-const Link = ({pushHistory, to, children, onClick, ...props}) => {
+export const Link = ({pushHistory, to, children, onClick, ...props}) => {
 
   const handleClick = (event) => {
     if (onClick) {
@@ -19,11 +19,9 @@ const Link = ({pushHistory, to, children, onClick, ...props}) => {
       !isModifiedEvent(event)
     ) {
       event.preventDefault();
-      DrawerActions.pushHistory(to);
+      history.push(to);
     }
   };
 
   return <a {...props} onClick={handleClick} href={to}>{children}</a>;
 };
-
-export default Link;

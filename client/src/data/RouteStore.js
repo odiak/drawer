@@ -1,7 +1,6 @@
 import Immutable from 'immutable';
 import {ReduceStore} from 'flux/utils';
-import DrawerActionTypes from './DrawerActionTypes';
-import DrawerDispatcher from './DrawerDispatcher';
+import {DrawerActionTypes} from './DrawerActionTypes';
 
 const routeDefinition = [
   {name: 'home', pattern: '/'},
@@ -66,11 +65,7 @@ function route(path) {
   });
 }
 
-class RouteStore extends ReduceStore {
-  constructor() {
-    super(DrawerDispatcher);
-  }
-
+export class RouteStore extends ReduceStore {
   getInitialState() {
     return Immutable.Map({
       name: null,
@@ -90,5 +85,3 @@ class RouteStore extends ReduceStore {
     }
   }
 }
-
-export default new RouteStore();

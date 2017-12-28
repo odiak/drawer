@@ -1,7 +1,6 @@
 import Immutable from 'immutable';
 import {ReduceStore} from 'flux/utils';
-import DrawerActionTypes from './DrawerActionTypes';
-import DrawerDispatcher from './DrawerDispatcher';
+import {DrawerActionTypes} from './DrawerActionTypes';
 
 const DEFAULT_WIDTH = 600;
 const DEFAULT_HEIGHT = 400;
@@ -86,11 +85,7 @@ function drawLine(imageData, p0, p1) {
   }
 }
 
-class PictureStore extends ReduceStore {
-  constructor() {
-    super(DrawerDispatcher);
-  }
-
+export class PictureStore extends ReduceStore {
   getInitialState() {
     return Immutable.Map({
       imageData: new ImageData(DEFAULT_WIDTH, DEFAULT_HEIGHT),
@@ -125,5 +120,3 @@ class PictureStore extends ReduceStore {
     }
   }
 }
-
-export default new PictureStore();
