@@ -57,4 +57,13 @@ export const DrawerActions = {
         });
     });
   },
+
+  changeTool(tool) {
+    DrawerDispatcher.dispatch({
+      type: DrawerActionTypes.CHANGE_TOOL,
+      payload: {
+        tool,
+      },
+    });
+  },
 };

@@ -1,7 +1,8 @@
-import React from 'react';
+import * as React from 'react';
 import './App.css';
 import {Link} from './components/Link';
 import {Canvas} from './components/Canvas';
+import {ToolSelector} from './components/ToolSelector';
 
 export const App = (props) => (
   <div
@@ -25,6 +26,8 @@ export const App = (props) => (
     </ul>
 
     <p>{props.route.get('name')}</p>
+
+    <ToolSelector {...props} />
 
     <div>
       <Canvas {...props} />

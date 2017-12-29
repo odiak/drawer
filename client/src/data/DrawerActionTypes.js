@@ -4,6 +4,7 @@ export const DrawerActionTypes = {
   HANDLE_ON_MOUSE_MOVE: null,
   HANDLE_ON_MOUSE_UP: null,
   CLEAR_CANVAS: null,
+  CHANGE_TOOL: null,
 };
 
 for (const key in DrawerActionTypes) {
