@@ -26,12 +26,14 @@ function route(path) {
   [queryString, hash] = queryString.split('#', 2);
   hash || (hash = '');
 
-  let query = queryString ? queryString.split('&').reduce((s, o) => {
-    let [k, v] = s.split('=', 2);
-    v || (v = true);
-    o[k] = v;
-    return o;
-  }, {}) : {};
+  let query = queryString
+    ? queryString.split('&').reduce((s, o) => {
+        let [k, v] = s.split('=', 2);
+        v || (v = true);
+        o[k] = v;
+        return o;
+      }, {})
+    : {};
 
   // remove trailing slash
   if (path !== '/' && path.charAt(path.length - 1) === '/') {

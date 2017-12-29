@@ -12,5 +12,5 @@ history.listen((location, action) => {
   DrawerActions.pushHistory(location.pathname);
 });
 
-ReactDOM.render(<AppContainer/>, document.getElementById('root'));
+ReactDOM.render(<AppContainer />, document.getElementById('root'));
 registerServiceWorker();

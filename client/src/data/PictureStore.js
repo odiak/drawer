@@ -42,7 +42,8 @@ function drawLine(imageData, p0, p1) {
   let y = y0;
   let ps = [];
   {
-    let _y = 0, _e = deltaX >> 1;
+    let _y = 0,
+      _e = deltaX >> 1;
     for (let _x = 1; _x < thickness; _x++) {
       ps.push([_y, -_x]);
       _e -= deltaY;
@@ -102,12 +103,8 @@ export class PictureStore extends ReduceStore {
         if (!previousPoint) return state;
         let currentPoint = new Point({x: action.x, y: action.y});
         let imageData = state.get('imageData');
-        drawLine(
-          imageData,
-          previousPoint,
-          currentPoint);
-        return state
-          .set('previousPoint', currentPoint);
+        drawLine(imageData, previousPoint, currentPoint);
+        return state.set('previousPoint', currentPoint);
       }
       case DrawerActionTypes.HANDLE_ON_MOUSE_UP:
         return state.set('previousPoint', null);

@@ -10,14 +10,11 @@ const routeStore = new RouteStore(DrawerDispatcher);
 
 export const AppContainer = Container.createFunctional(
   App,
-  () => ([
-    pictureStore,
-    routeStore,
-  ]),
+  () => [pictureStore, routeStore],
   () => ({
     picture: pictureStore.getState(),
     route: routeStore.getState(),
 
     ...DrawerActions,
-  })
+  }),
 );

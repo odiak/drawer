@@ -15,17 +15,13 @@ export const Canvas = (props) => {
           event.preventDefault();
           event.stopPropagation();
           let {left, top} = getOffset(event.target);
-          props.onMouseDown(
-            event.touches[0].pageX - left,
-            event.touches[0].pageY - top);
+          props.onMouseDown(event.touches[0].pageX - left, event.touches[0].pageY - top);
         };
         e.ontouchmove = (event) => {
           event.preventDefault();
           event.stopPropagation();
           let {left, top} = getOffset(event.target);
-          props.onMouseMove(
-            event.touches[0].pageX - left,
-            event.touches[0].pageY - top);
+          props.onMouseMove(event.touches[0].pageX - left, event.touches[0].pageY - top);
         };
       }}
       onMouseDown={(event) => {
@@ -34,6 +30,6 @@ export const Canvas = (props) => {
       onMouseMove={(e) => {
         props.handleOnMouseMove(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
       }}
-      ></canvas>
+    />
   );
 };
