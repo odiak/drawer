@@ -7,23 +7,29 @@ export const DrawerActions = {
   pushHistory(path) {
     DrawerDispatcher.dispatch({
       type: DrawerActionTypes.PUSH_HISTORY,
-      path,
+      payload: {
+        path,
+      },
     });
   },
 
   handleOnMouseDown(x, y) {
     DrawerDispatcher.dispatch({
       type: DrawerActionTypes.HANDLE_ON_MOUSE_DOWN,
-      x,
-      y,
+      payload: {
+        x,
+        y,
+      },
     });
   },
 
   handleOnMouseMove(x, y) {
     DrawerDispatcher.dispatch({
       type: DrawerActionTypes.HANDLE_ON_MOUSE_MOVE,
-      x,
-      y,
+      payload: {
+        x,
+        y,
+      },
     });
   },
 

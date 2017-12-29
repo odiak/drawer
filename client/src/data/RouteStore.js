@@ -81,7 +81,7 @@ export class RouteStore extends ReduceStore {
     switch (action.type) {
       case DrawerActionTypes.PUSH_HISTORY:
         console.log(action);
-        return route(action.path);
+        return route(action.payload.path);
       default:
         return state;
     }

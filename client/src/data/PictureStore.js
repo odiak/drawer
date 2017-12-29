@@ -1,4 +1,4 @@
-import Immutable from 'immutable';
+import * as Immutable from 'immutable';
 import {ReduceStore} from 'flux/utils';
 import {DrawerActionTypes} from './DrawerActionTypes';
 
@@ -86,22 +86,29 @@ function drawLine(imageData, p0, p1) {
   }
 }
 
+const PictureState = Immutable.Record({
+  imageData: null,
+  previousPoint: null,
+});
+
 export class PictureStore extends ReduceStore {
   getInitialState() {
-    return Immutable.Map({
+    return PictureState({
       imageData: new ImageData(DEFAULT_WIDTH, DEFAULT_HEIGHT),
-      previousPoint: null,
     });
   }
 
   reduce(state, action) {
     switch (action.type) {
-      case DrawerActionTypes.HANDLE_ON_MOUSE_DOWN:
-        return state.set('previousPoint', new Point({x: action.x, y: action.y}));
+      case DrawerActionTypes.HANDLE_ON_MOUSE_DOWN: {
+        const {x, y} = action.payload;
+        return state.set('previousPoint', new Point({x, y}));
+      }
       case DrawerActionTypes.HANDLE_ON_MOUSE_MOVE: {
         let previousPoint = state.get('previousPoint');
         if (!previousPoint) return state;
-        let currentPoint = new Point({x: action.x, y: action.y});
+        const {x, y} = action.payload;
+        let currentPoint = new Point({x, y});
         let imageData = state.get('imageData');
         drawLine(imageData, previousPoint, currentPoint);
         return state.set('previousPoint', currentPoint);
