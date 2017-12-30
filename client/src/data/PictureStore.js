@@ -99,15 +99,20 @@ function sameColor(c1, c2) {
   );
 }
 
-function fill(imageData, x, y, [r, g, b, a]) {
-  const color = colorAt(imageData, x, y);
+function fill(imageData, x, y, color) {
+  const [r, g, b, a] = color;
+  const colorAtPoint = colorAt(imageData, x, y);
+  if (sameColor(colorAtPoint, color)) {
+    return;
+  }
   const q = [{x, y}];
   while (q.length > 0) {
     const {x, y} = q.shift();
     if (x < 0 || y < 0 || x >= imageData.width || y >= imageData.height) {
       continue;
     }
-    if (sameColor(color, colorAt(imageData, x, y))) {
+
+    if (sameColor(colorAtPoint, colorAt(imageData, x, y))) {
       plot(imageData, x, y, r, g, b, a);
       q.push({x: x - 1, y});
       q.push({x: x + 1, y});
@@ -141,47 +146,59 @@ export class PictureStore extends ReduceStore {
 
   reduce(state, action) {
     switch (action.type) {
-      case DrawerActionTypes.HANDLE_ON_MOUSE_DOWN: {
-        const {x, y} = action.payload;
-        switch (state.currentTool) {
-          case 'pen':
-            return state.set('previousPoint', new Point({x, y}));
-          case 'fill':
-            fill(state.imageData, x, y, [0, 0, 0, 255]);
-            return state.set('checksum', checksum(state.imageData));
-          default:
-            return state;
-        }
-      }
-      case DrawerActionTypes.HANDLE_ON_MOUSE_MOVE: {
-        const {x, y} = action.payload;
-        switch (state.currentTool) {
-          case 'pen': {
-            let previousPoint = state.get('previousPoint');
-            if (!previousPoint) return state;
-            let currentPoint = new Point({x, y});
-            let imageData = state.get('imageData');
-            drawLine(imageData, previousPoint, currentPoint);
-            return state.set('previousPoint', currentPoint);
-          }
-          default:
-            return state;
-        }
-      }
-      case DrawerActionTypes.HANDLE_ON_MOUSE_UP: {
-        switch (state.currentTool) {
-          case 'pen':
-            return state.set('previousPoint', null);
-          default:
-            return state;
-        }
-      }
+      case DrawerActionTypes.HANDLE_ON_MOUSE_DOWN:
+        return this.handleMouseDown(state, action);
+
+      case DrawerActionTypes.HANDLE_ON_MOUSE_MOVE:
+        return this.handleMouseMove(state, action);
+
+      case DrawerActionTypes.HANDLE_ON_MOUSE_UP:
+        return this.handleMouseUp(state, action);
+
       case DrawerActionTypes.CLEAR_CANVAS: {
         let imageData = state.get('imageData');
         return state.set('imageData', new ImageData(imageData.width, imageData.height));
       }
+
       case DrawerActionTypes.CHANGE_TOOL:
         return state.set('currentTool', action.payload.tool);
+
+      default:
+        return state;
+    }
+  }
+
+  handleMouseDown(state, {payload: {x, y}}) {
+    switch (state.currentTool) {
+      case 'pen':
+        return state.set('previousPoint', new Point({x, y}));
+      case 'fill':
+        fill(state.imageData, x, y, [0, 0, 0, 255]);
+        return state.set('checksum', checksum(state.imageData));
+      default:
+        return state;
+    }
+  }
+
+  handleMouseMove(state, {payload: {x, y}}) {
+    switch (state.currentTool) {
+      case 'pen': {
+        let previousPoint = state.get('previousPoint');
+        if (!previousPoint) return state;
+        let currentPoint = new Point({x, y});
+        let imageData = state.get('imageData');
+        drawLine(imageData, previousPoint, currentPoint);
+        return state.set('previousPoint', currentPoint);
+      }
+      default:
+        return state;
+    }
+  }
+
+  handleMouseUp(state, {payload}) {
+    switch (state.currentTool) {
+      case 'pen':
+        return state.set('previousPoint', null);
       default:
         return state;
     }
