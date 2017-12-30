@@ -86,21 +86,28 @@ function drawLine(imageData, p0, p1) {
   }
 }
 
-function sameColor(imageData, x, y, [r, g, b, a]) {
+function colorAt(imageData, x, y) {
   const i = (imageData.width * y + x) * 4;
   const d = imageData.data;
-  return d[i] === r && d[i + 1] === g && d[i + 2] === b && d[i + 3] === a;
+  return [d[i], d[i + 1], d[i + 2], d[i + 3]];
 }
 
-function fill(imageData, x, y, color) {
-  const [r, g, b, a] = color;
+function sameColor(c1, c2) {
+  return (
+    (c1[0] === c2[0] && c1[1] === c2[1] && c1[2] === c2[2] && c1[3] === c2[3]) ||
+    (c1[3] === c2[3] && c1[3] === 0) // transparent
+  );
+}
+
+function fill(imageData, x, y, [r, g, b, a]) {
+  const color = colorAt(imageData, x, y);
   const q = [{x, y}];
   while (q.length > 0) {
     const {x, y} = q.shift();
     if (x < 0 || y < 0 || x >= imageData.width || y >= imageData.height) {
       continue;
     }
-    if (!sameColor(imageData, x, y, color)) {
+    if (sameColor(color, colorAt(imageData, x, y))) {
       plot(imageData, x, y, r, g, b, a);
       q.push({x: x - 1, y});
       q.push({x: x + 1, y});
