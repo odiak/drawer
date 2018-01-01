@@ -5,6 +5,7 @@ export const DrawerActionTypes = {
   HANDLE_ON_MOUSE_UP: '',
   CLEAR_CANVAS: '',
   CHANGE_TOOL: '',
+  CHANGE_COLOR: '',
 };
 
 for (const key in DrawerActionTypes) {

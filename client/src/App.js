@@ -3,6 +3,7 @@ import './App.css';
 import {Link} from './components/Link';
 import {Canvas} from './components/Canvas';
 import {ToolSelector} from './components/ToolSelector';
+import {ColorSelector} from './components/ColorSelector';
 
 export const App = (props) => (
   <div
@@ -28,6 +29,8 @@ export const App = (props) => (
     <p>{props.route.get('name')}</p>
 
     <ToolSelector {...props} />
+
+    <ColorSelector {...props} />
 
     <div>
       <Canvas {...props} />

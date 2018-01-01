@@ -66,4 +66,13 @@ export const DrawerActions = {
       },
     });
   },
+
+  changeColor(color) {
+    DrawerDispatcher.dispatch({
+      type: DrawerActionTypes.CHANGE_COLOR,
+      payload: {
+        color,
+      },
+    });
+  },
 };
