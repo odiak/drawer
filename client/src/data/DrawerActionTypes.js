@@ -1,12 +1,14 @@
 export const DrawerActionTypes = {
-  PUSH_HISTORY: null,
-  HANDLE_ON_MOUSE_DOWN: null,
-  HANDLE_ON_MOUSE_MOVE: null,
-  HANDLE_ON_MOUSE_UP: null,
-  CLEAR_CANVAS: null,
-  CHANGE_TOOL: null,
+  PUSH_HISTORY: '',
+  HANDLE_ON_MOUSE_DOWN: '',
+  HANDLE_ON_MOUSE_MOVE: '',
+  HANDLE_ON_MOUSE_UP: '',
+  CLEAR_CANVAS: '',
+  CHANGE_TOOL: '',
 };
 
 for (const key in DrawerActionTypes) {
   DrawerActionTypes[key] = key;
 }
+
+Object.freeze(DrawerActionTypes);
